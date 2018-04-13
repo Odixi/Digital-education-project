@@ -15,8 +15,8 @@ public class BallMover : MonoBehaviour {
 	}
 
 	public void ThrowBall(float vel, float ang){
-		velocity = Vector2.right * vel;
-		velocity = Quaternion.Euler (0, 0, ang) * velocity;
+        velocity = Vector2.right * vel;
+        velocity = Quaternion.Euler (0, 0, ang) * velocity;
 		simulate = true;
 	}
 
