@@ -11,14 +11,15 @@ public class GameController : MonoBehaviour {
     public Button playerTwoAnswer;
     public AnswerField inputs;
     public Text timerNumber;
+    public GameObject playerPrefab;
 
     private bool timerPaused;
     private int currentPlayerNum;
     private bool finished;
     private float timePassed;
 
-    public GameObject ball;
-	private BallMover ballMover;
+    public GameObject ballPrefab;
+	//private BallMover ballMover;
 
     // Use this for initialization
     void Awake()
@@ -26,8 +27,8 @@ public class GameController : MonoBehaviour {
         CancelInputs();
         finished = false;
         timerPaused = false;
-        players = new Player[2]; players[0] = new Player(); players[1] = new Player();
-        ballMover = ball.GetComponent<BallMover>();
+        players = new Player[2]; players[0] = CreatePlayerInstance(1, -7, 1); players[1] = CreatePlayerInstance(-1, 7, 2); //TODO: Randomize the positions a little
+        //ballMover = ballPrefab.GetComponent<BallMover>();
     }
 
 
@@ -45,7 +46,7 @@ public class GameController : MonoBehaviour {
         timerNumber.text = timePassed.ToString("0.00");
 
         // If ready, when each player 
-        if (finished) foreach (Player player in players) if (!player.shotLeft && player.answerTime <= timePassed) player.Shoot(ballMover);
+        if (finished) foreach (Player player in players) if (!player.shotLeft && player.answerTime <= timePassed) player.Shoot(ballPrefab);
 
     }
 
@@ -93,6 +94,20 @@ public class GameController : MonoBehaviour {
         inputs.gameObject.SetActive(false);
         inputs.velocityField.text = "";
         inputs.angleField.text = "";
+    }
+
+    // Instantiate a player based on the data given
+    private Player CreatePlayerInstance(int dir, float posX, int playerNum)
+    {
+        Vector3 readyPositions = playerPrefab.transform.position;
+        Player createdPlayer = GameObject.Instantiate(playerPrefab, new Vector3(posX, readyPositions.y, readyPositions.z), new Quaternion()).GetComponent<Player>();
+        createdPlayer.direction = dir; createdPlayer.position = posX; createdPlayer.playerNumber.text = playerNum.ToString();
+        if (dir < 0)
+        {
+            Vector3 throwPointInverted = createdPlayer.throwPoint.transform.localPosition;
+            createdPlayer.throwPoint.transform.localPosition = new Vector3(throwPointInverted.x*dir, throwPointInverted.y, throwPointInverted.z);
+        }
+        return createdPlayer;
     }
 
 }

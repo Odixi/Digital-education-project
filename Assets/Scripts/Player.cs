@@ -1,30 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
 
-    public bool answerStatus;
-    public float answerVelocity;
-    public float answerAngle;
-    public float answerTime;
-    public bool shotLeft;
+    public BoxCollider2D hitDetectCollider;
+    public GameObject throwPoint; // the point, from which the players throw starts
+    public Text playerNumber;
 
-	// Use this for initialization
-	public Player() {
-        answerStatus = false;
-        answerVelocity = 0f;
-        answerAngle = 0f;
-        shotLeft = false;
-        answerTime = 0f;
-	}
+    [HideInInspector]
+    public bool answerStatus;
+    [HideInInspector]
+    public float answerVelocity;
+    [HideInInspector]
+    public float answerAngle;
+    [HideInInspector]
+    public float answerTime;
+    [HideInInspector]
+    public bool shotLeft;
+    [HideInInspector]
+    public int direction;
+    [HideInInspector]
+    public float position;
+
 	
-    public void Shoot(BallMover mover)
+    public void Shoot(GameObject thrownBall)
     {
-        mover.ResetPosition();
-        mover.ThrowBall(answerVelocity, answerAngle);
+        BallMover mover = GameObject.Instantiate(thrownBall).GetComponent<BallMover>();
+        mover.ResetPosition(throwPoint.transform.position);
+        mover.ThrowBall(answerVelocity * direction, answerAngle * direction);
+        Debug.Log(mover.simulate);
         shotLeft = true;
     }
+    
 
 	
 }
