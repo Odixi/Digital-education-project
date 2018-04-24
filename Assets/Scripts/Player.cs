@@ -25,13 +25,13 @@ public class Player : MonoBehaviour {
     public float position;
 
 	
-    public void Shoot(GameObject thrownBall)
+    public BallMover Shoot(GameObject thrownBall)
     {
         BallMover mover = GameObject.Instantiate(thrownBall).GetComponent<BallMover>();
         mover.ResetPosition(throwPoint.transform.position);
-        mover.ThrowBall(answerVelocity * direction, answerAngle * direction);
-        Debug.Log(mover.simulate);
+        mover.ThrowBall(answerVelocity * direction, answerAngle * direction, int.Parse(playerNumber.text));
         shotLeft = true;
+        return mover;
     }
     
 

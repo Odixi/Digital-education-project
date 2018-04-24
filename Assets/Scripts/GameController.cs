@@ -15,19 +15,23 @@ public class GameController : MonoBehaviour {
 
     private bool timerPaused;
     private int currentPlayerNum;
-    private bool finished;
+    private bool bothAnswered;
     private float timePassed;
 
     public GameObject ballPrefab;
+    private ArrayList ballsInPlay;
+    private ArrayList ballResults;
 	//private BallMover ballMover;
 
     // Use this for initialization
     void Awake()
     {
         CancelInputs();
-        finished = false;
+        bothAnswered = false;
         timerPaused = false;
         players = new Player[2]; players[0] = CreatePlayerInstance(1, -7, 1); players[1] = CreatePlayerInstance(-1, 7, 2); //TODO: Randomize the positions a little
+        ballsInPlay = new ArrayList();
+        ballResults = new ArrayList();
         //ballMover = ballPrefab.GetComponent<BallMover>();
     }
 
@@ -40,13 +44,26 @@ public class GameController : MonoBehaviour {
 
     void FixedUpdate()
     {
-        if (!timerPaused && finished) timePassed += Time.deltaTime*3;
+        if (!timerPaused && bothAnswered) timePassed += Time.deltaTime*3;
         else if(!timerPaused) timePassed += Time.deltaTime;
 
         timerNumber.text = timePassed.ToString("0.00");
 
         // If ready, when each player 
-        if (finished) foreach (Player player in players) if (!player.shotLeft && player.answerTime <= timePassed) player.Shoot(ballPrefab);
+        if (bothAnswered) foreach (Player player in players) {
+
+                if (ballResults.Count > 0 && ballsInPlay.Count == 0)
+                {
+                    StopGameAndShowResults();
+                }
+
+                if (!player.shotLeft && player.answerTime <= timePassed)
+                {
+                    BallMover ballShot = player.Shoot(ballPrefab);
+                    ballsInPlay.Add(ballShot);
+                    ballShot.controller = this;
+                }
+        }
 
     }
 
@@ -60,18 +77,13 @@ public class GameController : MonoBehaviour {
         currentPlayer.answerAngle = float.Parse(inputs.angleField.text);
         currentPlayer.answerTime = timePassed;
 
-
-        //// Saved for testing purposes
-        //ballMover.ResetPosition();
-        //ballMover.ThrowBall(float.Parse(inputs.velocityField.text), float.Parse(inputs.angleField.text));
-
         CancelInputs();
 
         // Check whether both players are ready. If they are, move to the next step.
-        finished = true;
-        foreach (Player player in players) finished = finished && player.answerStatus;
+        bothAnswered = true;
+        foreach (Player player in players) bothAnswered = bothAnswered && player.answerStatus;
 
-        if (finished) timePassed = 0;
+        if (bothAnswered) timePassed = 0;
 
     }
 
@@ -108,6 +120,45 @@ public class GameController : MonoBehaviour {
             createdPlayer.throwPoint.transform.localPosition = new Vector3(throwPointInverted.x*dir, throwPointInverted.y, throwPointInverted.z);
         }
         return createdPlayer;
+    }
+
+
+    public void BallDestroyed(BallMover destructed, int hitSuccess)
+    {
+        ballResults.Add(new Vector2Int(destructed.thrower, hitSuccess));
+        ballsInPlay.Remove(destructed);
+        GameObject.Destroy(destructed.gameObject);
+    }
+
+    private void StopGameAndShowResults()
+    {
+        int countOfSuccesses = 0;
+        int countOfUtterFailures = 0;
+        foreach (Vector2Int i in ballResults) {
+            if (i.y == 1) countOfSuccesses++;
+            else if (i.y == -1) countOfUtterFailures++;
+        } 
+        if (countOfSuccesses == 1 || countOfUtterFailures == 1)
+        {
+            timerNumber.text = "Voittaja löytyi!";
+            foreach (Vector2Int i in ballResults)
+            {
+                if (i.y == 1)
+                {
+                    timerNumber.text = "Voittaja on " + i.x;                            //TODO: An actual banner for showing the winner
+                    break;
+                }
+                else if (i.y == -1)
+                {
+                    timerNumber.text = i.x == 1 ? "Voittaja on 2" : "Voittaja on 1";    //TODO: An actual banner for showing the winner
+                    break;
+                }
+            }
+        }
+        else
+        {
+            timerNumber.text = "Uusiks...";                                             //TODO: An actual banner for showing the winner
+        }
     }
 
 }
