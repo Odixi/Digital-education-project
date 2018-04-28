@@ -42,5 +42,9 @@ public class MeasuringController : MonoBehaviour {
 			lineRenderer.enabled = false;
 			measureText.GetComponent<Text> ().enabled = false;
 		}
+
+		if (Input.GetKey(KeyCode.R)) {
+			Application.LoadLevel(Application.loadedLevel);
+		}
 	}
 }

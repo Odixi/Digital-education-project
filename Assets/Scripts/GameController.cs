@@ -37,6 +37,7 @@ public class GameController : MonoBehaviour {
 		players[1] = CreatePlayerInstance(-1, new Vector2(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width,0,0)).x - Random.Range(1,3), ground.GetRightHeight()+0.6f), 2); 
         ballsInPlay = new ArrayList();
         ballResults = new ArrayList();
+		GetComponent<ObstacleGenerator>().enabled = true; // Players must be initilized first
     }
 
 
