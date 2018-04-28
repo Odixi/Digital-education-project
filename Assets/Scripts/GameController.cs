@@ -13,7 +13,8 @@ public class GameController : MonoBehaviour {
     public Text timerNumber;
     public GameObject playerPrefab;
 
-    private bool timerPaused;
+    [HideInInspector]
+    public bool timerPaused;
     private int currentPlayerNum;
     private bool bothAnswered;
     private float timePassed;
@@ -28,11 +29,11 @@ public class GameController : MonoBehaviour {
     {
         CancelInputs();
         bothAnswered = false;
-        timerPaused = false;
+        timerPaused = true;
+
         players = new Player[2]; players[0] = CreatePlayerInstance(1, -7, 1); players[1] = CreatePlayerInstance(-1, 7, 2); //TODO: Randomize the positions a little
         ballsInPlay = new ArrayList();
         ballResults = new ArrayList();
-        //ballMover = ballPrefab.GetComponent<BallMover>();
     }
 
 
@@ -52,7 +53,10 @@ public class GameController : MonoBehaviour {
         // If ready, when each player 
         if (bothAnswered) foreach (Player player in players) {
 
-                if (ballResults.Count > 0 && ballsInPlay.Count == 0)
+                bool testForAWinner = false;
+                foreach (Vector2Int i in ballResults) testForAWinner = testForAWinner || Mathf.Abs(i.y) == 1;  
+
+                if (ballResults.Count == 2 || (testForAWinner && ballResults.Count > 0 && ballsInPlay.Count == 0)) // Either both results are ready or one player won before another could even shoot
                 {
                     StopGameAndShowResults();
                 }
@@ -132,6 +136,7 @@ public class GameController : MonoBehaviour {
 
     private void StopGameAndShowResults()
     {
+        timerPaused = true;
         int countOfSuccesses = 0;
         int countOfUtterFailures = 0;
         foreach (Vector2Int i in ballResults) {
@@ -160,5 +165,7 @@ public class GameController : MonoBehaviour {
             timerNumber.text = "Uusiks...";                                             //TODO: An actual banner for showing the winner
         }
     }
+
+    
 
 }
