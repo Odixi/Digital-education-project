@@ -24,14 +24,17 @@ public class GameController : MonoBehaviour {
     private ArrayList ballResults;
 	//private BallMover ballMover;
 
-    // Use this for initialization
-    void Awake()
+    // Muutin takasin startiksi, jotta Ground generoidaan ensin ja siltä saadaan spawni paikat
+    void Start()
     {
         CancelInputs();
         bothAnswered = false;
         timerPaused = true;
 
-        players = new Player[2]; players[0] = CreatePlayerInstance(1, -7, 1); players[1] = CreatePlayerInstance(-1, 7, 2); //TODO: Randomize the positions a little
+		var ground = FindObjectOfType<GroundGenerator> ();
+        players = new Player[2];
+		players[0] = CreatePlayerInstance(1, new Vector2(Camera.main.ScreenToWorldPoint(Vector3.zero).x + Random.Range(1,3), ground.GetLeftHeight()+0.6f), 1);
+		players[1] = CreatePlayerInstance(-1, new Vector2(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width,0,0)).x - Random.Range(1,3), ground.GetRightHeight()+0.6f), 2); 
         ballsInPlay = new ArrayList();
         ballResults = new ArrayList();
     }
@@ -113,11 +116,11 @@ public class GameController : MonoBehaviour {
     }
 
     // Instantiate a player based on the data given
-    private Player CreatePlayerInstance(int dir, float posX, int playerNum)
+    private Player CreatePlayerInstance(int dir, Vector2 pos, int playerNum)
     {
         Vector3 readyPositions = playerPrefab.transform.position;
-        Player createdPlayer = GameObject.Instantiate(playerPrefab, new Vector3(posX, readyPositions.y, readyPositions.z), new Quaternion()).GetComponent<Player>();
-        createdPlayer.direction = dir; createdPlayer.position = posX; createdPlayer.playerNumber.text = playerNum.ToString();
+        Player createdPlayer = GameObject.Instantiate(playerPrefab, new Vector3(pos.x, pos.y, readyPositions.z), new Quaternion()).GetComponent<Player>();
+        createdPlayer.direction = dir; createdPlayer.position = pos.x; createdPlayer.playerNumber.text = playerNum.ToString();
         if (dir < 0)
         {
             Vector3 throwPointInverted = createdPlayer.throwPoint.transform.localPosition;
