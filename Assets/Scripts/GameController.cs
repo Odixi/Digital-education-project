@@ -12,12 +12,15 @@ public class GameController : MonoBehaviour {
     public AnswerField inputs;
     public Text timerNumber;
     public GameObject playerPrefab;
+    public GameObject EndGamePopup;
+    public Text EndGameLabel;
 
     [HideInInspector]
     public bool timerPaused;
     private int currentPlayerNum;
     private bool bothAnswered;
     private float timePassed;
+    private float firstAnswerTime;
 
     public GameObject ballPrefab;
     private ArrayList ballsInPlay;
@@ -28,10 +31,12 @@ public class GameController : MonoBehaviour {
     void Start()
     {
         CancelInputs();
+        EndGamePopup.SetActive(false);
         bothAnswered = false;
         timerPaused = true;
+        firstAnswerTime = 0;
 
-		var ground = FindObjectOfType<GroundGenerator> ();
+        var ground = FindObjectOfType<GroundGenerator> ();
         players = new Player[2];
 		players[0] = CreatePlayerInstance(1, new Vector2(Camera.main.ScreenToWorldPoint(Vector3.zero).x + Random.Range(1,3), ground.GetLeftHeight()+0.6f), 1);
 		players[1] = CreatePlayerInstance(-1, new Vector2(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width,0,0)).x - Random.Range(1,3), ground.GetRightHeight()+0.6f), 2); 
@@ -41,18 +46,13 @@ public class GameController : MonoBehaviour {
     }
 
 
-    //   void Start () {
-    //	inputs.answerBtn.onClick.AddListener (onThrowClicked);
-    //	ballMover = ball.GetComponent<BallMover> ();
-    //}
-
-
     void FixedUpdate()
     {
         if (!timerPaused && bothAnswered) timePassed += Time.deltaTime*3;
         else if(!timerPaused) timePassed += Time.deltaTime;
 
-        timerNumber.text = timePassed.ToString("0.00");
+        if (bothAnswered) timerNumber.text = (timePassed - firstAnswerTime).ToString("0.00"); 
+        else timerNumber.text = timePassed.ToString("0.00");
 
         // If ready, when each player 
         if (bothAnswered) foreach (Player player in players) {
@@ -86,12 +86,14 @@ public class GameController : MonoBehaviour {
         currentPlayer.answerTime = timePassed;
 
         CancelInputs();
+        if (firstAnswerTime == 0) firstAnswerTime = timePassed;
 
         // Check whether both players are ready. If they are, move to the next step.
         bothAnswered = true;
         foreach (Player player in players) bothAnswered = bothAnswered && player.answerStatus;
 
-        if (bothAnswered) timePassed = 0;
+
+        if (bothAnswered) timePassed = firstAnswerTime;
 
     }
 
@@ -146,28 +148,45 @@ public class GameController : MonoBehaviour {
         foreach (Vector2Int i in ballResults) {
             if (i.y == 1) countOfSuccesses++;
             else if (i.y == -1) countOfUtterFailures++;
-        } 
+        }
+        string winnerText;
         if (countOfSuccesses == 1 || countOfUtterFailures == 1)
         {
-            timerNumber.text = "Voittaja löytyi!";
+            winnerText = "Voittaja löytyi!";
             foreach (Vector2Int i in ballResults)
             {
                 if (i.y == 1)
                 {
-                    timerNumber.text = "Voittaja on " + i.x;                            //TODO: An actual banner for showing the winner
+                    winnerText = "Voittaja on " + i.x;                           
                     break;
                 }
                 else if (i.y == -1)
                 {
-                    timerNumber.text = i.x == 1 ? "Voittaja on 2" : "Voittaja on 1";    //TODO: An actual banner for showing the winner
+                    winnerText = i.x == 1 ? "Voittaja on 2" : "Voittaja on 1";   
                     break;
                 }
             }
         }
         else
         {
-            timerNumber.text = "Uusiks...";                                             //TODO: An actual banner for showing the winner
+            winnerText = "Uusiks...";                                           
         }
+
+        EndGameLabel.text = winnerText;
+        EndGamePopup.SetActive(true);
+
+    }
+
+
+
+    public void RestartGame()
+    {
+        Application.LoadLevel(Application.loadedLevel);
+    }
+
+    public void EndGame()
+    {
+        Application.LoadLevel("Menu");
     }
 
     
