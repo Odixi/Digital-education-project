@@ -24,6 +24,9 @@ public class GroundGenerator : MonoBehaviour {
 
 		leftHeight = Random.Range (heightMin, heightMax);
 		rightHeight = Random.Range (heightMin, heightMax);
+		float lowerAmount = Mathf.Min (leftHeight, rightHeight) - heightMin;
+		leftHeight -= lowerAmount;
+		rightHeight -= lowerAmount;
 		float leftWidth = Random.Range (widthMin, widthMax);
 		float RightWidth = Random.Range (widthMin, widthMax);
 
