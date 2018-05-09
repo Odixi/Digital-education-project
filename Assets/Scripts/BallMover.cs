@@ -35,7 +35,9 @@ public class BallMover : MonoBehaviour {
 			transform.position = new Vector3 (x, y, 0);
 
             // Below line is in case someone wants to test the boundaries of the throw
-            if (transform.position.y < -10 || Mathf.Abs(transform.position.x) > 50 || transform.position.y > 100) controller.BallDestroyed(this, 0);
+			if (transform.position.y < -10 || Mathf.Abs(transform.position.x) > 50 || transform.position.y > 100){ 
+				if (controller != null) controller.BallDestroyed(this, 0);
+			}
 		}
 	}
 
@@ -53,7 +55,7 @@ public class BallMover : MonoBehaviour {
             else hitEvaluator = 1;
         }
 
-        controller.BallDestroyed(this, hitEvaluator);
+		if (controller != null) controller.BallDestroyed(this, hitEvaluator);
     }
     
     public void ResetPosition(Vector3 position){
