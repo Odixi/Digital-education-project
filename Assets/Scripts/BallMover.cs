@@ -60,6 +60,5 @@ public class BallMover : MonoBehaviour {
     
     public void ResetPosition(Vector3 position){
         transform.position = position;
-        //transform.position = startPosition;
     }
 }
