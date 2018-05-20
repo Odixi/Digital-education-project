@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour {
     public Text timerNumber;
     public GameObject playerPrefab;
     public GameObject EndGamePopup;
+	public GameObject pauseView;
     public Text EndGameLabel;
 
     [HideInInspector]
@@ -21,6 +22,7 @@ public class GameController : MonoBehaviour {
     private bool bothAnswered;
     private float timePassed;
     private float firstAnswerTime;
+	private bool pause;
 
     public GameObject ballPrefab;
     private ArrayList ballsInPlay;
@@ -72,10 +74,26 @@ public class GameController : MonoBehaviour {
                     ballShot.controller = this;
                 }
         }
-
     }
 
+	void Update(){
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			OnPausePressed ();
+		}
+	}
 
+	public void OnPausePressed(){
+		if (pause) {
+			pauseView.SetActive (false);
+			pause = false;
+			timerPaused = false;
+		} else {
+			pauseView.SetActive (true);
+			pause = true;
+			timerPaused = true;
+		}
+	}
+		
     // Give the players answer
     public void OnAnswerClicked(){
         // Set the answers for the player
@@ -96,7 +114,6 @@ public class GameController : MonoBehaviour {
         if (bothAnswered) timePassed = firstAnswerTime;
 
     }
-
 
     // Set inputfields active, if the player hasnt given an answer
     public void ShowAnswerInputs(int playerNumber)
@@ -176,8 +193,6 @@ public class GameController : MonoBehaviour {
         EndGamePopup.SetActive(true);
 
     }
-
-
 
     public void RestartGame()
     {

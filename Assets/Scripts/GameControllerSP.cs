@@ -11,6 +11,7 @@ public class GameControllerSP : MonoBehaviour {
 	private GameObject targetInstance;
 	public GameObject endText;
 	public GameObject endView;
+	public GameObject pauseView;
 
 	public Button btnThrow;
 	public AnswerField inputs;
@@ -20,6 +21,7 @@ public class GameControllerSP : MonoBehaviour {
 
 	public GameObject triesText;
 	private int tries;
+	private bool pause = false;
 
 	void Start () {
 		// TODO instruction thingy
@@ -30,6 +32,11 @@ public class GameControllerSP : MonoBehaviour {
 		tries = 0;
 	}
 
+	void Update(){
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			OnPausePressed ();
+		}
+	}
 
 	public void OnThrowClicked(){
 		player.answerStatus = true;
@@ -37,6 +44,16 @@ public class GameControllerSP : MonoBehaviour {
 		player.answerAngle = float.Parse(inputs.angleField.text);
 		player.Shoot (ballPrefab);
 		inputs.answerBtn.interactable = false;
+	}
+
+	public void OnPausePressed(){
+		if (pause) {
+			pauseView.SetActive (false);
+			pause = false;
+		} else {
+			pauseView.SetActive (true);
+			pause = true;
+		}
 	}
 
 	public void Result(bool hitOrMiss){
